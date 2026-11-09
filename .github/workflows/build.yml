@@ -1,8 +1,20 @@
-name: Build
+name: Build and release
+
 on:
   push:
+    branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Optional new version tag (example: v0.1.1); leave empty to build only'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,12 +25,58 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Build plugin
         run: dotnet publish source/SwiftlySnow.csproj -c Release -o build/addons/swiftlys2/plugins/SwiftlySnow
-      - name: Extract particle
+      - name: Extract particle and package files
         run: |
           python3 scripts/extract-particle.py
           mkdir -p build/particle/particles/kolka
           cp assets/particles/kolka/snow_more_snow.vpcf_c build/particle/particles/kolka/
+          cp README.md LICENSE build/
+          (cd build && zip -qr ../SwiftlySnow.zip .)
       - uses: actions/upload-artifact@v4
         with:
           name: SwiftlySnow-build
-          path: build/
+          path: SwiftlySnow.zip
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: >-
+      (github.event_name == 'push' && github.ref_type == 'tag') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[release v0.1.0]')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: SwiftlySnow-build
+      - name: Publish prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          MANUAL_TAG: ${{ inputs.release_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == workflow_dispatch ]]; then
+            tag="$MANUAL_TAG"
+          elif [[ "$REF_TYPE" == tag ]]; then
+            tag="$REF_NAME"
+          else
+            tag="v0.1.0"
+          fi
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid version tag: $tag" >&2
+            exit 1
+          fi
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; refusing to overwrite it." >&2
+            exit 1
+          fi
+          gh release create "$tag" SwiftlySnow.zip --target "$GITHUB_SHA" --prerelease \
+            --title "SwiftlySnow $tag (test build)" \
+            --notes 'Early test build: compiled by GitHub Actions but not tested on a live CS2 server. The archive includes a third-party snow particle whose redistribution rights are not established; see README. The particle and its dependencies must be delivered separately to server and clients.'

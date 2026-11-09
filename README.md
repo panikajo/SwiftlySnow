@@ -29,10 +29,14 @@ SwiftlySnow is a from-scratch SwiftlyS2 reimplementation inspired by [Pisex/cs2-
    dotnet publish source/SwiftlySnow.csproj -c Release -o build/addons/swiftlys2/plugins/SwiftlySnow
    python3 scripts/extract-particle.py
    ```
-   Alternatively, download the `SwiftlySnow-build` artifact from a successful GitHub Actions run, if Actions is enabled. This is a build artifact, not a GitHub Release.
-2. Copy the generated `build/addons/swiftlys2/plugins/SwiftlySnow/` folder to your server at `addons/swiftlys2/plugins/SwiftlySnow/`. Preserve `snow-preferences.json` when updating.
-3. The extraction script produces `assets/particles/kolka/snow_more_snow.vpcf_c`. Prepare and serve this file **and any required dependencies** to the server and clients using a compatible content distribution setup. The particle is referenced in code as `particles/kolka/snow_more_snow.vpcf`. The provided file is not a ready-made Workshop add-on; copying it only to the server does not ensure clients receive it. Confirm rights to use and redistribute the resource before distributing it.
+   Alternatively, download `SwiftlySnow.zip` from [Releases](../../releases) or the `SwiftlySnow-build` artifact from a successful GitHub Actions run. Extract the archive first; it contains `addons/` and a separate `particle/` folder.
+2. Copy the generated or extracted `addons/swiftlys2/plugins/SwiftlySnow/` folder to your server at `addons/swiftlys2/plugins/SwiftlySnow/`. Preserve `snow-preferences.json` when updating.
+3. The extraction script produces `assets/particles/kolka/snow_more_snow.vpcf_c`; the release archive contains the same file under `particle/particles/kolka/`. Prepare and serve this file **and any required dependencies** to the server and clients using a compatible content distribution setup. The particle is referenced in code as `particles/kolka/snow_more_snow.vpcf`. The provided file is not a ready-made Workshop add-on; copying it only to the server does not ensure clients receive it. Confirm rights to use and redistribute the resource before distributing it.
 4. Restart the server or reload the map after installing the plugin and resources so the precache event runs. Join and type `!snow`. Test with two players, including death, respawn, reconnect and map change. Check SwiftlyS2 logs if it fails. If the menu opens but there is no snow, check that the particle and all dependencies are accessible on the server and clients.
+
+## GitHub Actions and releases
+
+GitHub Actions builds the plugin and uploads `SwiftlySnow.zip` as a workflow artifact on pushes, pull requests, and manual runs. To publish a new test release, push a version tag such as `v0.1.1`, or run **Build and release** manually with a new version in `release_tag`. A release is published only after a successful build and is marked as a prerelease. Existing releases are not overwritten. Repository Actions must be enabled and workflows must have permission to write repository contents.
 
 ## Third-party particle
 
