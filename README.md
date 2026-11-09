@@ -4,6 +4,10 @@ A personal snow effect and `!snow` settings menu for Counter-Strike 2 servers ru
 
 > **Early test build:** the plugin compiled against SwiftlyS2.CS2 1.5.1 without errors. It has not been tested on a running CS2 server or clients. Resource delivery, rendering, and compatibility with later versions need in-game verification.
 
+## Credits
+
+SwiftlySnow is a from-scratch SwiftlyS2 reimplementation inspired by [Pisex/cs2-snow](https://github.com/Pisex/cs2-snow). This rework was created by [panikajo](https://github.com/panikajo) in collaboration with AI. It is not a GitHub fork of the original repository. The snow particle is a third-party asset; see **Third-party particle** below.
+
 ## Features
 
 - `!snow` opens a menu with **Enable snow** and **Disable snow** actions (the in-game menu text is Russian).
