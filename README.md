@@ -21,7 +21,6 @@ SwiftlySnow is a from-scratch SwiftlyS2 reimplementation inspired by [Pisex/cs2-
 - A CS2 server with **SwiftlyS2 1.5.1**. Later versions must be compatible with the 1.5.1 API.
 - The snow particle and its dependencies must be available to **both server and clients** at the appropriate resource paths. Precaching alone does not deliver files to clients. A properly prepared Workshop add-on and AddonsManager are one possible delivery method; preparing and testing such an add-on is not included.
 - To build: **.NET 10 SDK** and NuGet access. To extract the supplied particle: **Python 3**.
-- Optional: [CustomHUD](https://github.com/shmitzas/CustomHUD). It requires its own [Workshop add-on 3834965450](https://steamcommunity.com/sharedfiles/filedetails/?id=3834965450) served to players via AddonsManager. This add-on is separate from the snow resource.
 
 ## Installation
 
@@ -34,16 +33,6 @@ SwiftlySnow is a from-scratch SwiftlyS2 reimplementation inspired by [Pisex/cs2-
 2. Copy the generated `build/addons/swiftlys2/plugins/SwiftlySnow/` folder to your server at `addons/swiftlys2/plugins/SwiftlySnow/`. Preserve `snow-preferences.json` when updating.
 3. The extraction script produces `assets/particles/kolka/snow_more_snow.vpcf_c`. Prepare and serve this file **and any required dependencies** to the server and clients using a compatible content distribution setup. The particle is referenced in code as `particles/kolka/snow_more_snow.vpcf`. The provided file is not a ready-made Workshop add-on; copying it only to the server does not ensure clients receive it. Confirm rights to use and redistribute the resource before distributing it.
 4. Restart the server or reload the map after installing the plugin and resources so the precache event runs. Join and type `!snow`. Test with two players, including death, respawn, reconnect and map change. Check SwiftlyS2 logs if it fails. If the menu opens but there is no snow, check that the particle and all dependencies are accessible on the server and clients.
-
-### Optional: CustomHUD
-
-Install CustomHUD and deliver its own Workshop add-on according to [its instructions](https://github.com/shmitzas/CustomHUD). First verify the server log says `Renderer 'customhud.panorama' registered.` Then merge this setting into `addons/swiftlys2/configs/menus/menus.jsonc` (do not overwrite unrelated settings):
-
-```jsonc
-{ "Menus": { "Renderer": "customhud.panorama" } }
-```
-
-An unregistered renderer can prevent menus from opening. Restore your previous renderer setting if CustomHUD is unavailable. This setting affects the server's menus, not just SwiftlySnow.
 
 ## Third-party particle
 
