@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>SwiftlySnow</AssemblyName><CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies></PropertyGroup>
+ <ItemGroup><PackageReference Include="SwiftlyS2.CS2" Version="1.5.1" ExcludeAssets="runtime" PrivateAssets="all" /></ItemGroup>
+</Project>

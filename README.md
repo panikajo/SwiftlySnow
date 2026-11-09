@@ -1,2 +1,54 @@
 # SwiftlySnow
-Per-player snow effect and !snow menu for SwiftlyS2 (CS2).
+
+A personal snow effect and `!snow` settings menu for Counter-Strike 2 servers running SwiftlyS2. Built using the current `Core.Menu` API and compatible with the optional CustomHUD renderer.
+
+> **Early test build:** the plugin compiled against SwiftlyS2.CS2 1.5.1 without errors. It has not been tested on a running CS2 server or clients. Resource delivery, rendering, and compatibility with later versions need in-game verification.
+
+## Features
+
+- `!snow` opens a menu with **Enable snow** and **Disable snow** actions (the in-game menu text is Russian).
+- Each player's choice is independent and saved by SteamID in `snow-preferences.json`; snow is enabled by default.
+- The effect is attached above the player's pawn and is visible only to its owner. It is removed on death or disconnect and recreated on spawn. An observer does not see another player's effect.
+- Uses SwiftlyS2 `Core.Menu`: the standard renderer works without CustomHUD. If configured, CustomHUD can render the same menu.
+- Includes the original example snow particle as a losslessly encoded file, plus a script to restore it. See **Third-party particle** and **License** below.
+
+## Requirements
+
+- A CS2 server with **SwiftlyS2 1.5.1**. Later versions must be compatible with the 1.5.1 API.
+- The snow particle and its dependencies must be available to **both server and clients** at the appropriate resource paths. Precaching alone does not deliver files to clients. A properly prepared Workshop add-on and AddonsManager are one possible delivery method; preparing and testing such an add-on is not included.
+- To build: **.NET 10 SDK** and NuGet access. To extract the supplied particle: **Python 3**.
+- Optional: [CustomHUD](https://github.com/shmitzas/CustomHUD). It requires its own [Workshop add-on 3834965450](https://steamcommunity.com/sharedfiles/filedetails/?id=3834965450) served to players via AddonsManager. This add-on is separate from the snow resource.
+
+## Installation
+
+1. Clone the repository. To build locally:
+   ```sh
+   dotnet publish source/SwiftlySnow.csproj -c Release -o build/addons/swiftlys2/plugins/SwiftlySnow
+   python3 scripts/extract-particle.py
+   ```
+   Alternatively, download the `SwiftlySnow-build` artifact from a successful GitHub Actions run, if Actions is enabled. This is a build artifact, not a GitHub Release.
+2. Copy the generated `build/addons/swiftlys2/plugins/SwiftlySnow/` folder to your server at `addons/swiftlys2/plugins/SwiftlySnow/`. Preserve `snow-preferences.json` when updating.
+3. The extraction script produces `assets/particles/kolka/snow_more_snow.vpcf_c`. Prepare and serve this file **and any required dependencies** to the server and clients using a compatible content distribution setup. The particle is referenced in code as `particles/kolka/snow_more_snow.vpcf`. The provided file is not a ready-made Workshop add-on; copying it only to the server does not ensure clients receive it. Confirm rights to use and redistribute the resource before distributing it.
+4. Restart the server or reload the map after installing the plugin and resources so the precache event runs. Join and type `!snow`. Test with two players, including death, respawn, reconnect and map change. Check SwiftlyS2 logs if it fails. If the menu opens but there is no snow, check that the particle and all dependencies are accessible on the server and clients.
+
+### Optional: CustomHUD
+
+Install CustomHUD and deliver its own Workshop add-on according to [its instructions](https://github.com/shmitzas/CustomHUD). First verify the server log says `Renderer 'customhud.panorama' registered.` Then merge this setting into `addons/swiftlys2/configs/menus/menus.jsonc` (do not overwrite unrelated settings):
+
+```jsonc
+{ "Menus": { "Renderer": "customhud.panorama" } }
+```
+
+An unregistered renderer can prevent menus from opening. Restore your previous renderer setting if CustomHUD is unavailable. This setting affects the server's menus, not just SwiftlySnow.
+
+## Third-party particle
+
+The encoded particle comes from [Pisex/cs2-snow](https://github.com/Pisex/cs2-snow/blob/main/particles/kolka/snow_more_snow.vpcf_c). It is stored in base64 because this repository was published through a text-only file interface; `scripts/extract-particle.py` restores the exact binary and verifies its SHA-256:
+
+`e825bb365c19dd54101798972bd331d41572a9b08f7158e18f40fdebe6296ff5`
+
+The source repository does not provide a separate license file for this asset. Its reuse and redistribution rights are **not established**; request permission from the rights holder before redistribution. AGPL-3.0 for the plugin does not grant rights to the particle or its dependencies. The original C++ plugin identifies itself as GPL in metadata but does not specify a version in a license file.
+
+## License
+
+The SwiftlySnow plugin source in `source/`, build/extraction scripts, and workflow are licensed under the [GNU Affero General Public License v3.0](LICENSE). The third-party particle and any of its dependencies are excluded; see **Third-party particle**. No endorsement by the original authors is implied.

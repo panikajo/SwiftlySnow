@@ -1,0 +1,24 @@
+name: Build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build plugin
+        run: dotnet publish source/SwiftlySnow.csproj -c Release -o build/addons/swiftlys2/plugins/SwiftlySnow
+      - name: Extract particle
+        run: |
+          python3 scripts/extract-particle.py
+          mkdir -p build/particle/particles/kolka
+          cp assets/particles/kolka/snow_more_snow.vpcf_c build/particle/particles/kolka/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SwiftlySnow-build
+          path: build/

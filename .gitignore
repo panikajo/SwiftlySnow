@@ -1,0 +1,5 @@
+**/bin/
+**/obj/
+build/
+assets/particles/kolka/*.vpcf_c
+snow-preferences.json
